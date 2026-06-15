@@ -6,7 +6,7 @@ set -euo pipefail
 REPO_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 CLAUDE_DIR="${CLAUDE_DIR:-$HOME/.claude}"
 
-mkdir -p "$CLAUDE_DIR/commands" "$CLAUDE_DIR/skills/knowledge-sync" "$CLAUDE_DIR/skills/brain-seed"
+mkdir -p "$CLAUDE_DIR/commands" "$CLAUDE_DIR/skills/knowledge-sync" "$CLAUDE_DIR/skills/brain-seed" "$CLAUDE_DIR/scripts"
 
 link() {
   local src="$1" dst="$2"
@@ -23,6 +23,7 @@ echo "Instalando symlinks a partir de $REPO_DIR em $CLAUDE_DIR"
 link "$REPO_DIR/commands/knowledge-sync-all.md"    "$CLAUDE_DIR/commands/knowledge-sync-all.md"
 link "$REPO_DIR/skills/knowledge-sync/SKILL.md"    "$CLAUDE_DIR/skills/knowledge-sync/SKILL.md"
 link "$REPO_DIR/skills/brain-seed/SKILL.md"        "$CLAUDE_DIR/skills/brain-seed/SKILL.md"
+link "$REPO_DIR/scripts/sync-repo.sh"              "$CLAUDE_DIR/scripts/sync-repo.sh"
 
 echo
 echo "Pronto. Verifique com: ls -la $CLAUDE_DIR/commands/ $CLAUDE_DIR/skills/*/"
