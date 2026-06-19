@@ -524,6 +524,36 @@ Meta: **100% em todas as quatro métricas**. Se algum item falhou → BLOQUEIO a
 
 ---
 
+## Fase 10 — Auditoria do CLAUDE.md (anti-deriva)
+
+O `CLAUDE.md` (raiz do repo + hub `/home/npu/code/CLAUDE.md`) carrega em TODA sessão e compete por contexto. Deve conter só o **estável e de alto sinal**; fato perecível mora no vault (que co-evolui aqui). A cada deep sync, audite o `CLAUDE.md` do repo:
+
+```bash
+F="CLAUDE.md"
+[ -f "$F" ] || F="$(git rev-parse --show-toplevel 2>/dev/null)/CLAUDE.md"
+
+# 1. Tamanho — meta < 200 linhas (acima disso a aderência do agente cai)
+echo "Linhas: $(wc -l < "$F") (meta < 200)"
+
+# 2. Secret literal versionado no doc
+grep -nE '(SECRET|API[_-]?KEY|PASSWORD|TOKEN) *[:=] *["'"'"']' "$F" && echo "PARE: possível secret literal no CLAUDE.md"
+
+# 3. Data perecível / vencida cravada no texto (preferir fato qualitativo + nota no vault)
+grep -nE '(expir|venc)|20[0-9]{2}' "$F" && echo "Revisar: data perecível"
+
+# 4. Número de linha cravado (envelhece a cada edição → usar âncora de função/handler achável por grep)
+grep -nE '~?L[0-9]{2,}|linha[s]? [0-9]{2,}|:[0-9]{3,}' "$F" && echo "Revisar: trocar número de linha por âncora"
+
+# 5. Contagem auto-declarada / folclore de cobertura (mover para o relatório do /knowledge-sync)
+grep -nE '[0-9]+ notas|wiki ?links|Cobertura 10/10|[0-9]+ endpoints' "$F" && echo "Revisar: contagem auto-declarada"
+```
+
+Para cada alerta: **corrija no mesmo PR** (co-evolução). Princípio: "remover esta linha faria o agente errar?" Se não, corte. Datas/contagens/números de linha → vão para o vault ou para um comando que os deriva; no `CLAUDE.md` fica só o fato qualitativo estável.
+
+> O `AGENTS.md` de cada repo é **symlink** para o `CLAUDE.md` (interop cross-tool) — não há arquivo separado para auditar.
+
+---
+
 ## Taxonomia de Tags (controlada)
 
 ```
@@ -564,3 +594,4 @@ tier: 1 | 2 | 3
 - Line numbers nas notas estão desatualizadas → PARE
 - Endpoint novo não está documentado → PARE
 - Relatório final não foi gerado → PARE
+- `CLAUDE.md` com data vencida, secret literal, contagem auto-declarada ou número de linha cravado → PARE e pode (ver Fase 10)
